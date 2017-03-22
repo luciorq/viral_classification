@@ -1,0 +1,68 @@
+---
+title: "Project"
+author: "Lucio Rezende Queiroz"
+date: "March 22, 2017"
+output:
+  pdf_document: default
+  html_notebook: default
+  ioslides_presentation: default
+  html_document: default
+  word_document: default
+---
+
+# Viral Classification
+
+# Setting envinroment
+
+```{r}
+args = commandArgs(trailingOnly=TRUE)
+system('git config --global user.name "luciorq"')
+system('git config --global user.email "luciorqueiroz@gmail.com"')
+```
+
+# Analysis
+
+## Loading libraries
+
+```{r}
+#source("src/functions.R")
+source("lib/rmd2rscript.R")
+require(dplyr)
+```
+
+## Initializing varaibles
+
+```{r}
+sequences = "raw/contigs_MCV.fasta.txt"
+db_name = "virus_ORF"
+db_file = paste0("data/",db_name,".db")
+```
+
+# Extracting fasta files and creating database
+```{r}
+system2("bash",args = c("src/RunAllFasta.sh", sequences, db_name))
+```
+
+## Plotting Correlation
+
+```{r}
+system2("Rscript", args = c("--no-save", "src/PearsonCorrelation.R", db_file))
+```
+
+# Converting this notebook to an executable script
+
+```{r}
+rmd2rscript("dsRBP.Rmd")
+```
+
+
+# How can we improve?
+
+- Ramdom Forests
+- Permutation tests for clustering
+- Use confidence interval for the Odds Ratio
+- Have a good training database
+
+
+## Acknowledgement
+

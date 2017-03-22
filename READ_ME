@@ -1,0 +1,33 @@
+
+## Autor: Lúcio Rezende Queiroz
+
+Este programa extrai todos os quadros abertos de leitura, do inglês open reading frames (ORF), de um arquivo Fasta, filtra estas sequências por um
+tamanho mínimo e calcula a frequência de distribuição dos dinucleotídeos e trinucleotídeos. 
+Normaliza a frequência de distribuição pelo tamanho das ORFs e calcula a razão de chances (odds ratio) baseado na frequência esperada destes valores,  
+caso estes dinucleotídeos e trinucleotídeos ocorram de forma independente.
+Após os perfis serem criados eles são adicionados a um banco de dados, que pode ser criado no momento ou adicionado a um existente, na pasta data/ e uma
+figura em pdf é gerada na pasta plot/ com o perfil desta distribuição.
+Por fim, caso exista mais de uma entrada no  banco de dados é feita a comparação entre as entradas utilizando a correlação de Pearson e um agrupamento,
+clusterização hierárquica é realizado, baseado nestes valores, gerando um arquivo na pasta plot/ contendo este agrupamento.
+O programa pode ser executado para cada sequência fasta de uma vez, ou para todas as sequências presentes da pasta data/
+
+
+## Este programa depende do programa getorf do PACOTE EMBOSS, disponivel em: 
+## http://emboss.sourceforge.net/apps/cvs/emboss/apps/getorf.html
+
+Para executar o programa para todos os arquivos .fasta dentro da pasta data/, utilize o comando:
+
+sh RunAllFasta.sh 
+
+Para executar o script em perl individualmente para um unico arquivo .fasta, adicionando uma nova entrada ao banco de dados utilize o comando:
+
+exemplo: perl DiTriNucFreq.pl data/DCV.fasta virus_ORF
+utilização: perl DiTriNucFreq.pl <arquivo.fasta>  <Nome_da_base_de_dados>
+
+
+Testado em ambiente Ubuntu 16.04 x86_64-pc-linux-gnu com:
+	GCC 5.4.0
+	Perl v5.22.1
+	Python 2.7.12
+	R version 3.3.2
+	EMBOSS-6.6.0
