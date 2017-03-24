@@ -12,12 +12,12 @@ clusterização hierárquica é realizado, baseado nestes valores, gerando um ar
 O programa pode ser executado para cada sequência fasta de uma vez, ou para todas as sequências presentes da pasta data/
 
 
-## Este programa depende do programa getorf do PACOTE EMBOSS, disponivel em: 
+## Este programa depende do programa getorf do PACOTE EMBOSS, disponível em: 
 ## http://emboss.sourceforge.net/apps/cvs/emboss/apps/getorf.html
 
 Para executar o programa para todos os arquivos .fasta dentro da pasta data/, utilize o comando:
 
-sh RunAllFasta.sh 
+sh src/RunAllFasta.sh 
 
 Para executar o script em perl individualmente para um unico arquivo .fasta, adicionando uma nova entrada ao banco de dados utilize o comando:
 

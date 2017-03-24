@@ -26,14 +26,14 @@ system('git config --global user.email "luciorqueiroz@gmail.com"')
 
 ```{r}
 #source("src/functions.R")
+#require(dplyr)
 source("lib/rmd2rscript.R")
-require(dplyr)
 ```
 
 ## Initializing varaibles
 
 ```{r}
-sequences = "raw/contigs_MCV.fasta.txt"
+sequences = "raw/unknown/contigs_MCV.fasta.txt"
 db_name = "virus_ORF"
 db_file = paste0("data/",db_name,".db")
 ```
@@ -41,6 +41,13 @@ db_file = paste0("data/",db_name,".db")
 # Extracting fasta files and creating database
 ```{r}
 system2("bash",args = c("src/RunAllFasta.sh", sequences, db_name))
+```
+
+## Training Decision Tree
+Copying files from server:
+  scp -P 2202 luciorq@150.164.24.106:/home/luciorq/TE/ raw/
+```{r}
+
 ```
 
 ## Plotting Correlation

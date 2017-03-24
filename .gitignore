@@ -4,3 +4,6 @@
 .Ruserdata
 ._.DS_Store
 .DS_Store
+images
+data/*
+*.nb.html
