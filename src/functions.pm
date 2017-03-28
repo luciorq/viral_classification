@@ -184,6 +184,7 @@ sub CreateDatabase{
             }
         }
     }
+    print $fh_db "Type\n";
     print "Banco de dados $db_file criado com sucesso.\n";
 }
 
@@ -192,6 +193,7 @@ sub AddDatabase{
     my $lib_name = $_[1];
     my $reference_di = $_[2];
     my $reference_tri = $_[3];
+    my $type = $_[4];
     my %odds_ratio_dint = %{ $reference_di }; #derreferenciando
     my %odds_ratio_trint = %{ $reference_tri }; #derreferenciando
    
@@ -223,11 +225,12 @@ sub AddDatabase{
                     print $fh_data $odds_ratio_trint{"$nt1$nt2$nt3"}, "\n";
                 }
                 else{
-                    print $fh_data "0\n"
+                    print $fh_data "0\n";
                 }
             }
         }
     }
+    print $fh_data $type,"\n";
     close($fh_data);
     `paste -d'\t' $db_file data/$lib_name.-alldata.scaled.temp > $db_file.temp`;
     `cp $db_file.temp $db_file`;

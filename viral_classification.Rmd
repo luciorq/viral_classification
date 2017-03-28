@@ -1,5 +1,5 @@
 ---
-title: "Project"
+title: "Viral Classification"
 author: "Lucio Rezende Queiroz"
 date: "March 22, 2017"
 output:
@@ -39,15 +39,9 @@ db_file = paste0("data/",db_name,".db")
 ```
 
 # Extracting fasta files and creating database
-```{r}
-system2("bash",args = c("src/RunAllFasta.sh", sequences, db_name))
-```
 
-## Training Decision Tree
-Copying files from server:
-  scp -P 2202 luciorq@150.164.24.106:/home/luciorq/TE/ raw/
 ```{r}
-
+system2("bash",args = c("src/RunAllFasta.sh", sequences, db_name, "unknown"))
 ```
 
 ## Plotting Correlation
@@ -56,10 +50,112 @@ Copying files from server:
 system2("Rscript", args = c("--no-save", "src/PearsonCorrelation.R", db_file))
 ```
 
+## Training Decision Tree
+
+Copying files from server:
+  scp -P 2202 luciorq@150.164.24.106:/home/luciorq/TE/ raw/
+```{r}
+tree_db_name = "decision_tree"
+for (directory in list.files("raw/")){
+  if (dir.exists(paste0("raw/",directory))){
+    print(directory)
+    for (file in list.files(paste0("raw/",directory))){
+      system(paste0("seqretsplit -sequence raw/",directory,"/",file," -outseq .fasta"))
+      if(!dir.exists(paste0("data/",directory))){ dir.create(paste0("data/",directory)) }
+      system(paste0("mv *.fasta data/",directory))
+    }
+    system(paste0("for file in data/",directory,"/*.fasta; do perl src/DiTriNucFreq.pl $file ",tree_db_name," ",directory,"; done"))
+  }
+}
+```
+
+# Unsupervised Learning with Random Forests
+
+```{r}
+library(caret)
+library(randomForest)
+```
+
+## Preparing the data
+
+```{r}
+db_file <- "data/decision_tree.db"
+
+db <- read.table(db_file, header = TRUE)
+
+t_db <- t(as.matrix(db))
+
+row_names <- names(db)
+row_names <- row_names[2:length(row_names)]
+df_names <- t_db[1,1:81]
+df_type <- as.character(t_db[2:nrow(t_db),81])
+df_values <- as.numeric(t_db[2:nrow(t_db),1:80])
+df_values <- matrix(df_values,ncol = 80 ,byrow = FALSE)
+df <- data.frame(df_values)
+df$Type <- df_type
+names(df) <- df_names
+df <- data.frame(df, row.names = row_names)
+head(df)
+
+training_df <- subset(df, Type != "unknown")
+head(training_df)
+TRUE %in% (training_df$AA == 0)
+
+## Porque remover estes?
+## db <- subset(db, ATG != 0 )
+```
+
+## Training the model
+
+```{r}
+print("Generating prediction model")
+set.seed(42)
+Formula <- Type ~ AA + AC + AG + AT + CA + CC + CG + CT + GA + GC + GG + GT + TA + TC + TG + TT + AAA + AAC + AAG + AAT + ACA + ACC + ACG + ACT + AGA + AGC + AGG + AGT + ATA + ATC + ATG + ATT + CAA + CAC + CAG + CAT + CCA + CCC + CCG + CCT + CGA + CGC + CGG + CGT + CTA + CTC + CTG + CTT + GAA + GAC + GAG + GAT + GCA + GCC + GCG + GCT + GGA + GGC + GGG + GGT + GTA + GTC + GTG + GTT + TAA + TAC + TAG + TAT + TCA + TCC + TCG + TCT + TGA + TGC + TGG + TGT + TTA + TTC + TTG + TTT
+
+model <- train(Formula, # Survived is a function of the variables we decided to include
+                          data = training_df, # Use the trainSet dataframe as the training data
+                          method = "rf",# Use the "random forest" algorithm
+                          trControl = trainControl(method = "cv", # Use cross-validation
+                                                   number = 5) # Use 5 folds for cross-validation
+               )
+
+```
+
+### What is cross-validation?
+
+Cross-validation is a way to evaluate the performance of a model without needing any other data than the training data. It sounds complicated, but it's actually a pretty simple trick. Typically, you randomly split the training data into 5 equally sized pieces called “folds” (so each piece of the data contains 20% of the training data). Then, you train the model on 4/5 of the data, and check its accuracy on the 1/5 of the data you left out. You then repeat this process with each split of the data. At the end, you average the percentage accuracy across the five different splits of the data to get an average accuracy. Caret does this for you, and you can see the scores by looking at the model output:
+
+```{r}
+model
+```
+
+There are few things to look at in the model output. The first thing to notice is where it says “The final value used for the model was mtry = 5.” The value “mtry” is a hyperparameter of the random forest model that determines how many variables the model uses to split the trees. The table shows different values of mtry along with their corresponding average accuracies (and a couple other metrics) under cross-validation. Caret automatically picks the value of the hyperparameter “mtry” that was the most accurate under cross validation. This approach is called using a “tuning grid” or a “grid search.”
+
+As you can see, with mtry = 41, the average accuracy was 0.8820358, or about 88 percent. As long as the training set isn't too fundamentally different from the test set, we should expect that our accuracy on the test set should be around 88 percent, as well.
+
+## Predicting the test set
+
+```{r}
+test_df <- subset(df, Type == "unknown")
+test_df$Prediction <- predict(model, newdata = test_df)
+```
+
+```{r}
+summary(test_df)
+```
+
+## 
+
+```{r}
+print("Prediction result:")
+print(test_df["Prediction"])
+```
+
+
 # Converting this notebook to an executable script
 
 ```{r}
-rmd2rscript("dsRBP.Rmd")
+rmd2rscript("viral_classification.Rmd")
 ```
 
 

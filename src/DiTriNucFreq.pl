@@ -1,9 +1,6 @@
 #!/usr/bin/perl
 
-## Programa criado como parte do projeto final proposto pela disciplina
-## Ambientes de Computação - UFMG, realizada no segundo semestre de 2016
-
-## Autores: Lúcio Rezende Queiroz & Elisson Nogueira Lopes
+## Autores: Lúcio Rezende Queiroz
 
 ## Este programa encontra a frequencia com que dinucleotideos e
 ## trinucleotideos ocorrem em todas as sequencias de um dado arquivo FASTA,
@@ -24,7 +21,7 @@ use src::functions;
 #variaveis declaradas
 my ($FASTA, $ORF_fasta);
 my (%odds_ratio_dint, %odds_ratio_trint);
-my ($db_name, $db_file, @lib_name, $entry_name);
+my ($db_name, $db_file, @lib_name, $entry_name, $type);
 
 # PROGRAMA PRINCIPAL
 
@@ -48,9 +45,10 @@ $db_name = $ARGV[1];
 $db_file = "data/$db_name.db";
 @lib_name = split(/[.]/ ,$ORF_fasta);
 @lib_name = split(/[\/]/, $lib_name[0]);
-$entry_name = $lib_name[1];
+$entry_name = $lib_name[2];
+$type = $ARGV[2];
 
-AddDatabase( $db_name, $entry_name, \%odds_ratio_dint, \%odds_ratio_trint ); # cria o banco de dados ou adiciona uma coluna ao banco de dados já existente
+AddDatabase( $db_name, $entry_name, \%odds_ratio_dint, \%odds_ratio_trint, $type); # cria o banco de dados ou adiciona uma coluna ao banco de dados já existente
 
 #PlotProfile($db_file, $entry_name); # Cria um arquivo PDF para a figura do perfil
 
